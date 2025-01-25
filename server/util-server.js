@@ -1066,6 +1066,7 @@ module.exports.lookup = async (hostname, ipFamily) => {
             resolve(hostname);
         }
     });
+};
 
 /**
  * Generates an abort signal with the specified timeout.

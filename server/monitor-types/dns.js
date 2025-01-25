@@ -1,5 +1,5 @@
 const { MonitorType } = require("./monitor-type");
-const { UP, DOWN } = require("../../src/util");
+const { UP, log } = require("../../src/util");
 const dayjs = require("dayjs");
 const { dnsResolve, lookup } = require("../util-server");
 const { R } = require("redbean-node");
