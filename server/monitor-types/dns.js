@@ -1,7 +1,7 @@
 const { MonitorType } = require("./monitor-type");
 const { UP, DOWN } = require("../../src/util");
 const dayjs = require("dayjs");
-const { dnsResolve } = require("../util-server");
+const { dnsResolve, lookup } = require("../util-server");
 const { R } = require("redbean-node");
 const { ConditionVariable } = require("../monitor-conditions/variables");
 const { defaultStringOperators } = require("../monitor-conditions/operators");
@@ -24,7 +24,15 @@ class DnsMonitorType extends MonitorType {
         let startTime = dayjs().valueOf();
         let dnsMessage = "";
 
-        let dnsRes = await dnsResolve(monitor.hostname, monitor.dns_resolve_server, monitor.port, monitor.dns_resolve_type);
+        let dnsResolveServer = monitor.dns_resolve_server;
+        try {
+            dnsResolveServer = await lookup(dnsResolveServer, monitor.ipFamily);
+        } catch (err) {
+            log.debug("monitor", `Error resolving ${monitor.dns_resolve_server}. Error: ${err}`);
+            throw new Error(`Error resolving ${monitor.dns_resolve_server}. Error: ${err}`);
+        }
+
+        let dnsRes = await dnsResolve(monitor.hostname, dnsResolveServer, monitor.port, monitor.dns_resolve_type);
         heartbeat.ping = dayjs().valueOf() - startTime;
 
         const conditions = ConditionExpressionGroup.fromMonitor(monitor);
